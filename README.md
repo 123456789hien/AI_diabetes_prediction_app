@@ -15,7 +15,7 @@ The entire pipeline runs **in the browser (client-side only)**, making the appli
 
 ## 2. Team
 
-- **Do Thi Hien** – Project Manager & Data Lead  
+- **Do Thi Hien** – Project Manager & Data Lead  & Web Integration
 - **Bhuian Md Waliulla** – Model Lead & Backend logic (ported to client-side TF.js)  
 - **Ahmed Md Zunayed** – Frontend & UI/UX Lead  
 
