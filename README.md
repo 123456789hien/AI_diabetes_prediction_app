@@ -1,5 +1,5 @@
 **AI-Based Diabetes Risk Prediction Web Application**
-_**Link page:**_ 
+_**Link page:**_ https://123456789hien.github.io/AI_diabetes_prediction_app/
 
 **1. Project Overview**
 
