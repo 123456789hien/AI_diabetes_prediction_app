@@ -1,121 +1,419 @@
-# AI-Based Diabetes Risk Prediction Web Application
+**AI-Based Diabetes Risk Prediction Web Application**
+_**Link page:**_ 
 
-## 1. Project Overview
+**1. Project Overview**
 
-This project implements an **AI-based web application** for predicting diabetes risk from basic health indicators. The system is designed as an **interactive client-side dashboard** that:
+_This project is a browser-based dashboard for **early diabetes risk prediction** built for the course **Neural Network and Deep Learning**._
 
-- Allows users to **upload a cleaned diabetes dataset**
-- Performs **Exploratory Data Analysis (EDA)** directly in the browser
-- Trains both a **Logistic Regression baseline (1-layer NN)** and a **deeper Neural Network** using **TensorFlow.js**
-- Provides an **interactive risk prediction form** with **visual feedback** and **risk factor explanation**
+The app allows users to:
 
-The entire pipeline runs **in the browser (client-side only)**, making the application easy to deploy via GitHub Pages and suitable for teaching and experimentation in Neural Network & Deep Learning courses.
+- Load a diabetes dataset (either from GitHub or from a local CSV file)
 
----
+- Train two models directly in the browser
 
-## 2. Team
+  +) Logistic regression (implemented as a single dense layer)
 
-- **Do Thi Hien** – Project Manager & Data Lead  & Web Integration
-- **Bhuian Md Waliulla** – Model Lead & Backend logic (ported to client-side TF.js)  
-- **Ahmed Md Zunayed** – Frontend & UI/UX Lead  
+  +) A small feed-forward neural network
 
----
+- Explore basic EDA and model behaviour
 
-## 3. Problem Definition
+- Enter personal health indicators to get an estimated diabetes risk
 
-Early detection of type 2 diabetes is critical for reducing long-term complications. Traditional screening often requires in-person clinical workflows and manual interpretation of risk factors.
+- See “what-if” scenarios that simulate improvement of key risk factors
 
-This project addresses the following problem:
+Everything runs **client-side** using **TensorFlow.js** so no Python backend is required.
 
-> Given a set of routinely available health indicators, can we build an AI-based tool that estimates a person’s diabetes risk and explains which factors contribute to that risk?
+**2. Technology Stack**
 
-Target users include:
+**Frontend**
 
-- Health-conscious individuals with access to their basic lab results
-- Healthcare students / practitioners who want to understand ML-based risk scoring
-- Instructors and students in **Neural Network & Deep Learning** courses
+HTML5
 
----
+CSS3
 
-## 4. Dataset
+Vanilla JavaScript
 
-- **Source:** Diabetes Prediction Dataset (originally from Kaggle)  
-- **Local file used in this project:** `diabetes_raw_cleaned_25k.csv`  
-- **Columns:**
+**Libraries**
 
-  - `gender`
-  - `age`
-  - `hypertension`
-  - `heart_disease`
-  - `smoking_history`
-  - `bmi`
-  - `HbA1c_level`
-  - `blood_glucose_level`
-  - `diabetes` (target: 0/1)
+TensorFlow.js – in-browser training and inference
 
-For this web app, we assume that:
+Chart.js – interactive charts
 
-- Categorical features (`gender`, `smoking_history`) are **already numerically encoded** in the CSV in a way that is consistent with the encoding used in the prediction form:
-  - `gender`: `0 = Female`, `1 = Male`
-  - `smoking_history`: mapped via  
-    `Never → 0, No Info → 1, Current → 2, Former → 3, Ever → 4, Not Current → 5`
-- There are **no missing values** in the cleaned dataset (or they were imputed beforehand).
+PapaParse – CSV parsing in the browser
 
----
+**Hosting**
 
-## 5. Methodology
+Designed to run on **GitHub Pages** or any static file server
 
-### 5.1 Client-Side Architecture
+Everything is contained in four files so the structure stays simple and easy to deploy.
 
-The application is entirely client-side:
+**3. Repository Structure**
+diabetes-risk-webapp/
+├── index.html                  # Main dashboard layout and app structure
+├── style.css                   # Dark plasma UI theme and responsive layout
+├── script.js                   # EDA, model training, prediction and what-if logic
+└── diabetes_raw_cleaned_25k.csv   # Default Kaggle-based diabetes dataset
 
-- **Data ingestion:** CSV uploaded via `<input type="file">` and parsed by **PapaParse**
-- **EDA & Visualization:**  
-  - Class distribution and feature distributions plotted with **Chart.js**
-- **Model training:**  
-  - Implemented using **TensorFlow.js** running in the browser
-- **Prediction:**  
-  - User form inputs → converted into feature vector → passed to trained neural network
 
-This satisfies the course requirement of **Neural Networks & Deep Learning** while also demonstrating a practical, fully browser-based deployment.
+If you move the CSV into a _data/_ folder you must update the path in _script.js_ inside the _autoLoadDataset()_ function.
 
-### 5.2 Exploratory Data Analysis (EDA)
+**4. Dataset**
 
-After CSV upload (before training):
+Source: Diabetes Prediction Dataset (Kaggle)
+_https://www.kaggle.com/datasets/iammustafatz/diabetes-prediction-dataset_
 
-1. **Class distribution**  
-   - Bar chart of `diabetes = 0` vs `diabetes = 1`
-   - Helps quickly assess class imbalance
+**Columns used in this project**
 
-2. **Numeric feature distributions (Age, BMI)**  
-   - Age grouped into: `<30`, `30–39`, `40–49`, `50–59`, `60+`  
-   - BMI grouped into: `<18.5`, `18.5–24.9`, `25–29.9`, `30–34.9`, `35+`  
-   - Both are visualized with Chart.js bar charts on the left-hand side
+_gender_ – Male or Female
 
-These EDA plots are computed and rendered dynamically from the uploaded dataset to connect data understanding with model training.
+_age_ – continuous age in years
 
----
+_hypertension_ – 0 (no) or 1 (yes)
 
-## 6. Model Design
+_heart_disease_ – 0 (no) or 1 (yes)
 
-### 6.1 Input Features
+_smoking_history_ – categorical
+  - Never, No Info, Current, Former, Ever, Not Current
 
-The model uses the following features:
+_bmi_ – body mass index
 
-- `gender`
-- `age`
-- `hypertension`
-- `heart_disease`
-- `smoking_history`
-- `bmi`
-- `HbA1c_level`
-- `blood_glucose_level`
+_HbA1c_level_ – glycated hemoglobin
 
-The target label is `diabetes` (0 = no diabetes, 1 = diabetes).
+_blood_glucose_level_ – blood glucose (mg/dL)
 
-### 6.2 Logistic Regression Baseline
+_diabetes_ – binary target 0 or 1
 
-Implemented as a single-layer neural network:
+The dataset in this repo is a cleaned subset with at most **25 000 rows**
 
-```text
-Input (8 features) → Dense(1, activation='sigmoid')
+_diabetes_raw_cleaned_25k.csv_
+
+**5. Core Features**
+
+The dashboard is organised into **three main steps** on the UI (left column for data and models, right column for prediction).
+
+**Step 1 – Upload Dataset**
+
+Users can choose between two options:
+
+_**1. Choose CSV File**_
+
+  - Upload any compatible diabetes CSV from local disk
+
+  - The app parses it with PapaParse, filters empty rows and computes class counts
+
+_**2. Auto-Load Dataset**_
+
+  - Automatically loads the default dataset
+
+  - Path is defined in _script.js_ in _autoLoadDataset()_
+
+  - Designed for quick demo and reproducible experiments
+
+After loading the dataset, the app shows:
+
+  - Total number of rows
+
+  - Number of diabetes cases
+
+  - Percentage of positive vs negative classes
+
+It also enables the **Train Models** button and reveals the EDA charts.
+
+**Step 2 – Train AI Models**
+
+From the same left column, Step 2 lets the user train two models **in the browser**:
+
+A **logistic regression model**
+
+  Implemented as Dense(1, sigmoid) in TensorFlow.js
+
+A **neural network model**
+
+  _Dense(16, relu)_ + dropout
+
+  _Dense(8, relu)_ + dropout
+
+  _Dense(1, sigmoid)_
+
+Implementation details:
+
+  Uses up to **5 000 samples** from the loaded dataset to prevent freezing the browser
+
+  Splits data into **80% train** and **20% test**
+
+  Trains both models for **20 epochs** with batch size **32**
+
+  Input vector uses this order of features
+
+  ['gender', 'age', 'hypertension', 'heart_disease', 'smoking_history', 'bmi', 'HbA1c_level', 'blood_glucose_level']
+
+
+After training, the dashboard displays:
+
+  Logistic regression accuracy and loss
+
+  Neural network accuracy
+
+  A **feature importance chart** based on logistic regression weights
+
+The “Feature Importance” chart shows which features push risk up or down according to the linear model.
+
+**Step 2 – EDA (Left Column)**
+
+After dataset loading the app computes lightweight EDA:
+
+  **1. Class Distribution**
+
+    Bar chart of _diabetes = 0_ vs _diabetes = 1_
+
+  **2. Age Distribution (grouped)**
+
+    Bins: _<30, 30–39, 40–49, 50–59, 60+_
+
+ **3.  BMI Distribution (categorised)**
+
+    <18.5
+
+    18.5–24.9
+
+    25–29.9
+
+    30–34.9
+
+    35+
+
+These charts help users visually understand the sample composition before or after training.
+
+**Step 3 – Check Your Risk (Right Column)**
+
+The right column is an interactive form that lets a user enter health indicators and obtain an estimated diabetes risk from the **neural network** model.
+
+Inputs:
+
+  Gender
+
+  Age
+
+  Hypertension (Yes/No)
+
+  Heart disease (Yes/No)
+
+  Smoking history
+
+  BMI
+
+  HbA1c (optional)
+
+  Blood glucose
+
+_**HbA1c is optional**_
+
+Many people do not know their **HbA1c level**. The app therefore:
+
+  Treats the HbA1c input as **optional**
+
+  If HbA1c is missing, the model still runs using the other features
+
+  In the risk factors list the app explains that HbA1c was not provided
+
+If HbA1c is provided, the app also interprets it as:
+
+  Normal (< 5.7)
+
+  Pre-diabetes (5.7–6.4)
+
+  Diabetes range (≥ 6.5)
+
+_**BMI can be entered or calculated**_
+
+BMI is often unfamiliar despite being easy to compute. The UI supports both:
+
+  _**1. Direct BMI input**_
+
+    User can type BMI directly if they already know it
+
+  _**2. Built-in BMI calculator**_
+
+    Additional inputs:
+
+      Weight (kg)
+
+      Height (cm) or (m)
+
+    The app uses:
+
+      BMI = weight in kg / (height in metres)^2
+
+    If height is entered in centimetres the app converts to metres automatically
+
+    On clicking “Calculate BMI” the BMI field is filled for the user
+
+If BMI is still not provided, the model falls back to other features and the risk factor section explains that BMI was missing.
+
+**Risk output**
+
+After pressing **Predict Risk** the app:
+
+  Builds a feature vector from the form
+
+  Passes it through the trained neural network
+
+  Displays:
+
+    - Estimated risk probability (0–100%)
+
+    - Risk level badge: low, moderate or high
+
+    - Colored progress bar
+
+**Risk Factors Analysis**
+
+Below the probability, the app shows a **Risk Factors Analysis** list.
+
+For each feature the app shows:
+
+  - The factor name
+
+  - The numeric value or message (for example “Not provided”)
+
+  - A short comment with a human-readable interpretation
+
+  - A color coding
+
+    +) Red for risk factors
+
+    +) Green for protective factors
+
+Examples:
+
+  “High HbA1c Level – High (≥ 6.5, diabetes range)”
+
+  “Normal Blood Glucose – Normal (< 100 mg/dL)”
+
+  “High BMI – Obese (30–34.9)”
+
+  “Age – Older age group (≥ 60, higher risk)”
+
+  “BMI – Not provided, you can calculate it using weight and height”
+
+**What-if Scenarios**
+
+To connect the model with actionable insight, the app includes a **What-if** block below the risk factors.
+
+Two scenarios are computed:
+
+**1. If BMI were 25**
+
+  Keeps all other features fixed
+
+  Sets BMI = 25
+
+  Computes new risk with the same neural network
+
+  Shows new risk percentage and change vs current risk
+
+**2. If HbA1c were 6.0**
+
+  Keeps other features fixed
+
+  Sets HbA1c = 6.0
+
+  Computes new risk and shows the change
+
+This gives an intuitive sense of how improving weight or glycemic control might affect predicted risk according to the learned model.
+The app clearly labels these as **hypothetical scenarios** not medical advice.
+
+**6. Implementation Details
+6.1 Preprocessing**
+
+Categorical features are numeric-encoded in JS
+
+  _gender_: Female → 0, Male → 1
+
+  _smoking_history_: mapping Never → 0, No Info → 1, Current → 2, Former → 3, Ever → 4, Not Current → 5
+
+Missing numeric values in the dataset are replaced with 0 during tensor creation
+
+For user inputs, BMI and HbA1c can be left empty
+
+  They are treated as NaN then replaced by 0 in the model vector while still being explained in the risk analysis section
+
+No explicit scaling or normalization is applied in this version since the focus is on demonstrating **model training with TensorFlow.js** and **interactive behaviour** rather than achieving optimal benchmark scores.
+
+**6.2 Models**
+
+_**Logistic Regression**_
+
+  TensorFlow.js sequential model with a single Dense layer
+
+  Binary cross-entropy loss and Adam optimizer
+
+_**Neural Network**_
+
+  Two hidden layers with ReLU
+
+  Dropout to reduce overfitting
+
+  Outputs probability via sigmoid
+
+Both models are trained on the same training split and evaluated on the same test split.
+
+**7. Evaluation Metrics**
+
+The dashboard reports:
+
+  **Accuracy** for logistic regression
+
+  **Loss** (binary cross-entropy) for logistic regression
+
+  **Accuracy** for the neural network
+
+The intention for the course is to:
+
+  Compare logistic regression vs neural network
+
+  Observe the trade-off between model complexity and performance
+
+  Show how feature weights (from logistic regression) relate to model explanations
+
+**8. Limitations**
+
+- Predictions are **not medical diagnoses**
+
+- The dataset is limited and may not generalise to all populations
+
+- No cross-validation or hyperparameter search is implemented
+
+- No calibration check for the predicted probabilities
+
+- HbA1c and BMI imputation is very simple (missing → 0) on the model side
+
+  The UI tries to compensate by clearly informing the user when values are not provided
+
+**9. Possible Future Work**
+
+- Add more robust preprocessing and feature scaling
+
+- Add ROC and AUC visualisations
+
+- Implement model comparison plots over epochs
+
+- Add saving and loading of trained models (TensorFlow.js _model.save()_ and _model.load_)
+
+- Extend the what-if module with more scenarios (for example age groups or blood glucose improvement)
+
+- Integrate more detailed educational content explaining each biomarker
+
+**10. Disclaimer**
+
+This application is developed for **educational purposes** within a Neural Network and Deep Learning course.
+
+The predictions are:
+
+  - Based on historical data
+
+  - Simplified
+
+  - Not validated for clinical use
+
+Users should **never** use this tool as a substitute for professional medical advice, diagnosis or treatment.
