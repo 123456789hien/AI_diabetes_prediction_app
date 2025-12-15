@@ -71,8 +71,8 @@ header {
 }
 
 .status-dot {
-    width: 9px;
-    height: 9px;
+    width: 8px;
+    height: 8px;
     background: var(--accent);
     border-radius: 50%;
     animation: pulse 2s infinite;
@@ -172,7 +172,7 @@ button {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 40%, #0ea5e9 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, #1e88e5 100%);
     color: white;
     width: 100%;
     justify-content: center;
